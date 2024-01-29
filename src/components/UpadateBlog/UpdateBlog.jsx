@@ -1,30 +1,18 @@
 "use client";
 
-import { AuthContext } from "@/Context/AuthProvider";
-import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-
-const AddBlogsPage = () => {
-  const { user } = useContext(AuthContext);
-  const [dbUser, setDbUser] = useState();
+const UpdateBlog = ({ id }) => {
+  const [blog, setBlog] = useState();
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(
-          "https://doodlesserver.vercel.app/api/v1/users"
-        );
-        const data = await res.json();
-        const cUser = data.find((us) => us.email === user.email);
-        setDbUser(cUser);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [user?.email]);
+    fetch(`https://doodlesserver.vercel.app/api/v1/getSpecificBlog/${id}`)
+      .then((res) => res.json())
+      .then((data) => setBlog(data));
+  }, [id]);
 
   const {
     register,
@@ -32,36 +20,36 @@ const AddBlogsPage = () => {
     reset,
     formState: { errors },
   } = useForm();
+
   const onSubmit = async (data) => {
     const title = data.blogTitle;
     const body = data.description;
-    const userId = dbUser?.uid;
+    const blogs = { title, body };
+    const res = await fetch(
+      `https://doodlesserver.vercel.app/api/v1/updateBlog/${id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ blogs }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const serverRes = await res.json();
+    if (serverRes.updatedId) {
+      toast.success("Updated Successfully");
 
-    const blog = { title, body, userId };
-
-    const res = await fetch("https://doodlesserver.vercel.app/api/v1/blogs", {
-      method: "POST",
-      body: JSON.stringify({ blog }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const dataN = await res.json();
-
-    if (dataN.insertedId) {
-      toast.success("Blog Created Successfully");
-      reset();
+      router.push("/");
     }
-    console.log(dataN);
+    console.log(serverRes);
   };
+
   return (
-    <div>
-      <h2 className=" text-center font-bold underline md:text-4xl text-xl my-12">
-        Enter details for the blog
-      </h2>
+    <div className=" flex justify-center items-center h-[70vh] w-full">
       <form onSubmit={handleSubmit(onSubmit)} class="">
         <div class="relative z-0 w-full mb-5 group">
           <input
+            defaultValue={blog?.title}
             {...register("blogTitle")}
             type="text"
             class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none  dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
@@ -78,6 +66,7 @@ const AddBlogsPage = () => {
         </div>
         <div class="relative z-0 w-full mb-5 group">
           <textarea
+            defaultValue={blog?.body}
             rows="5"
             cols="50"
             {...register("description")}
@@ -97,7 +86,7 @@ const AddBlogsPage = () => {
         </div>
 
         <input
-          value="Submit"
+          value="Update"
           type="submit"
           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         />
@@ -106,4 +95,4 @@ const AddBlogsPage = () => {
   );
 };
 
-export default AddBlogsPage;
+export default UpdateBlog;

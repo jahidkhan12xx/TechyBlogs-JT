@@ -22,7 +22,9 @@ const LoginPage = () => {
         const uid = Date.now();
         const user = { uid, name, email, isBlocked };
 
-        const result = await fetch("http://localhost:5000/api/v1/users");
+        const result = await fetch(
+          "https://doodlesserver.vercel.app/api/v1/users"
+        );
         const existUser = await result.json();
 
         const isExist = existUser.find(
@@ -30,13 +32,16 @@ const LoginPage = () => {
         );
 
         if (!isExist) {
-          const response = await fetch("http://localhost:5000/api/v1/users", {
-            method: "POST",
-            body: JSON.stringify({ user }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+          const response = await fetch(
+            "https://doodlesserver.vercel.app/api/v1/users",
+            {
+              method: "POST",
+              body: JSON.stringify({ user }),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
           const data = await response.json();
         }
         toast.success("Successfully Login");

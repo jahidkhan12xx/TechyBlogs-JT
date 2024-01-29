@@ -28,13 +28,16 @@ const RegisterPage = () => {
         console.log(res.user);
         if (res.user) {
           updateUser(name).then(async () => {
-            const response = await fetch("http://localhost:5000/api/v1/users", {
-              method: "POST",
-              body: JSON.stringify({ user }),
-              headers: {
-                "Content-Type": "application/json",
-              },
-            });
+            const response = await fetch(
+              "https://doodlesserver.vercel.app/api/v1/users",
+              {
+                method: "POST",
+                body: JSON.stringify({ user }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
             const data = await response.json();
             if (data.insertedId) {
               toast.success("Successfully Registered");
