@@ -31,9 +31,6 @@ const NavBar = () => {
       <li>
         <NavLink href="/add-blogs">Add Blogs</NavLink>
       </li>
-      <li>
-        <NavLink href="/dashboard">Dashboard</NavLink>
-      </li>
     </>
   );
   return (
